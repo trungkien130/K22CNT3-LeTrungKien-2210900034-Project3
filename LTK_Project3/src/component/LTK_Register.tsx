@@ -10,7 +10,7 @@ const Interface = {
   createDay: "", // Ngày tạo tự động
 };
 
-export default function App() {
+export default function LTK_App() {
   const [RegisterData, SetRegisterData] = useState(Interface);
 
   // ✅ Tự động lấy ngày giờ hiện tại khi load trang
@@ -33,7 +33,7 @@ export default function App() {
       hour12: false,
     }).format(new Date());
   };
-
+  // @ts-ignore
   const handleInputChange = (e) => {
     const { name, value } = e.target;
 
