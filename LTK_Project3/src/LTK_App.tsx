@@ -1,18 +1,16 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
-import Login from "./component/LTK_Login";
-import Register from "./component/LTK_Register";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import LTK_Admin from "./component/AdminComponent/LTK_Admin";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./LTK_App.css";
+import LTK_Home from "./component/HomeComponent/LTK_Home";
 
 function App() {
-  const [count, setCount] = useState(0);
-
   return (
-    <>
-      {/* <Login/> */}
-      <Register />
-    </>
+    <Routes>
+      <Route path="/" element={<LTK_Home />} />
+      <Route path="/home" element={<LTK_Home />} />
+      <Route path="/admin/*" element={<LTK_Admin />} />
+    </Routes>
   );
 }
 

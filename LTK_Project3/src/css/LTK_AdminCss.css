@@ -1,0 +1,22 @@
+/* Sidebar: Fixed width */
+.sidebar-container {
+  width: 250px; /* Adjust width as needed */
+  background-color: #343a40; /* Sidebar background */
+  color: white;
+  height: 100vh; /* Full height */
+  position: fixed;
+  left: 0;
+  top: 0;
+  overflow-y: auto;
+}
+
+
+.d-flex.flex-column.flex-grow-1 { 
+  width: calc(100% - 250px);
+}
+
+.navbar {
+  width: 100%;
+  background-color: #f8f9fa; 
+  padding: 10px 20px;
+}
