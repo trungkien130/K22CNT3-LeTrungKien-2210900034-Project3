@@ -25,9 +25,7 @@ export default function LTK_HeaderAdmin() {
             alt="User Avatar"
             className="avatar"
           />
-          <span>
-            Hi, <strong>Hizrian</strong>
-          </span>
+          <span></span>
         </div>
       </div>
     </header>

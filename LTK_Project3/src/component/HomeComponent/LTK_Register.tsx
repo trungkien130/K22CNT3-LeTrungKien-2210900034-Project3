@@ -2,59 +2,51 @@ import { useState } from "react";
 import instance from "../../Api/LTK_Api";
 import "/Project 3/LTK_Project3/src/css/ltkStyle.css";
 
-function getCurrentTimeVN() {
-  return new Date().toISOString().split("T")[0];
-}
-
-const initialData = {
-  name: "",
-  email: "",
-  password: "",
-  dateBirth: "",
-  PhoneNum: "",
-  gender: "",
-  createDay: getCurrentTimeVN(),
-};
-
-function LTK_Register({ isOpen, onClose }) {
-  const [RegisterData, SetRegisterData] = useState(initialData);
+function LTK_Register({ onClose, onSwitchToLogin }) {
+  const [registerData, setRegisterData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    phoneNum: "",
+    createDay: new Date().toISOString().split("T")[0],
+  });
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    SetRegisterData((prevData) => ({
+    setRegisterData((prevData) => ({
       ...prevData,
-      [name]: name === "PhoneNum" && value ? Number(value) : value,
+      [name]: name === "phoneNum" && value ? Number(value) : value,
     }));
   };
 
-  async function Register() {
+  async function handleRegister() {
+    if (registerData.password !== registerData.confirmPassword) {
+      setErrorMessage("Mật khẩu không khớp!");
+      return;
+    }
+
     const requestData = {
-      ltkHoten: RegisterData.name,
-      ltkEmail: RegisterData.email,
-      ltkGioitinh: RegisterData.gender === "male",
-      ltkNgaysinh: RegisterData.dateBirth,
-      ltkSodienthoai: RegisterData.PhoneNum,
+      ltkHoten: registerData.name,
+      ltkEmail: registerData.email,
+      ltkSodienthoai: registerData.phoneNum,
       ltkTrangthai: true,
       ltkNgaytao: new Date().toISOString().split("T")[0],
-      ltkMatkhau: RegisterData.password,
+      ltkMatkhau: registerData.password,
     };
 
     try {
       console.log("Dữ liệu gửi đi:", requestData);
       const response = await instance.post("/ltkKhachhang", requestData);
-
       console.log("Đăng ký thành công:", response.data);
       onClose();
     } catch (error) {
       console.error("API Fetch Error:", error);
-      if (error.response) {
-        console.log("Lỗi từ server:", error.response.data);
-      }
+      setErrorMessage("Lỗi hệ thống. Vui lòng thử lại!");
     }
   }
 
-  if (!isOpen) return null;
-  function Login_swichPagebtn() {}
   return (
     <div className="popup-overlay" onClick={onClose}>
       <div className="popup-container" onClick={(e) => e.stopPropagation()}>
@@ -66,7 +58,7 @@ function LTK_Register({ isOpen, onClose }) {
           <input
             type="text"
             name="name"
-            value={RegisterData.name}
+            value={registerData.name}
             onChange={handleInputChange}
             placeholder="Nhập họ và tên"
             className="popup-input"
@@ -74,51 +66,42 @@ function LTK_Register({ isOpen, onClose }) {
           <input
             type="password"
             name="password"
-            value={RegisterData.password}
+            value={registerData.password}
             onChange={handleInputChange}
             placeholder="Nhập mật khẩu"
             className="popup-input"
           />
           <input
+            type="password"
+            name="confirmPassword"
+            value={registerData.confirmPassword}
+            onChange={handleInputChange}
+            placeholder="Nhập lại mật khẩu"
+            className="popup-input"
+          />
+          <input
             type="email"
             name="email"
-            value={RegisterData.email}
+            value={registerData.email}
             onChange={handleInputChange}
             placeholder="Nhập email"
             className="popup-input"
           />
           <input
-            type="date"
-            name="dateBirth"
-            value={RegisterData.dateBirth}
-            onChange={handleInputChange}
-            className="popup-input"
-          />
-          <input
             type="text"
-            name="PhoneNum"
-            value={RegisterData.PhoneNum}
+            name="phoneNum"
+            value={registerData.phoneNum}
             onChange={handleInputChange}
             placeholder="Nhập số điện thoại"
             className="popup-input"
           />
-          <select
-            name="gender"
-            value={RegisterData.gender}
-            onChange={handleInputChange}
-            className="popup-input"
-          >
-            <option value="">Chọn giới tính</option>
-            <option value="male">Nam</option>
-            <option value="female">Nữ</option>
-            <option value="other">Khác</option>
-          </select>
-          <button onClick={Register} className="popup-button">
+          {errorMessage && <p className="error-message">{errorMessage}</p>}
+          <button onClick={handleRegister} className="popup-button">
             Đăng ký
           </button>
-          <span className="title_swichPage">
-            Bạn đã có tài khoản{" "}
-            <a onClick={Login_swichPagebtn} className="swichpage-btn">
+          <span className="title_switchPage">
+            Bạn đã có tài khoản?{" "}
+            <a onClick={onSwitchToLogin} className="switchpage-btn">
               Đăng nhập
             </a>
           </span>

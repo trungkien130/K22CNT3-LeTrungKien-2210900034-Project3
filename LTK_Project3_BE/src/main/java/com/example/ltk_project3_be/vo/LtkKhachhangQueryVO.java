@@ -38,6 +38,6 @@ public class LtkKhachhangQueryVO implements Serializable {
 
     private String ltkMatKhau;
     private int page = 0;
-    private int size = 10;
+    private int size = 1000;
 
 }

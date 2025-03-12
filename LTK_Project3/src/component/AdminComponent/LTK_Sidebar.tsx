@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
+import { FaBox, FaUsers } from "react-icons/fa"; // Thêm icon cho sản phẩm và khách hàng
 import instance from "../../Api/LTK_Api";
 
 const Sidebar = () => {
@@ -22,7 +23,7 @@ const Sidebar = () => {
       className="d-flex flex-column p-3 text-white bg-dark"
       style={{ width: "250px" }}
     >
-      <h4>⚡ KaiAdmin</h4>
+      <h4>Admin Page</h4>
       <ul className="nav nav-pills flex-column mb-auto">
         <li className="nav-item">
           <NavLink
@@ -42,7 +43,7 @@ const Sidebar = () => {
               isActive ? "nav-link text-white active" : "nav-link text-white"
             }
           >
-            Danh Sách Sản Phẩm
+            <FaBox className="me-2" /> Danh Sách Sản Phẩm
           </NavLink>
         </li>
         <li className="nav-item">
@@ -52,10 +53,11 @@ const Sidebar = () => {
               isActive ? "nav-link text-white active" : "nav-link text-white"
             }
           >
+            <FaUsers className="me-2" />
             Danh Sách Khách Hàng
           </NavLink>
         </li>
-        <li className="nav-item">
+        {/* <li className="nav-item">
           <NavLink
             to="/admin/widgets"
             className={({ isActive }) =>
@@ -64,7 +66,7 @@ const Sidebar = () => {
           >
             📌 Widgets
           </NavLink>
-        </li>
+        </li> */}
       </ul>
     </div>
   );

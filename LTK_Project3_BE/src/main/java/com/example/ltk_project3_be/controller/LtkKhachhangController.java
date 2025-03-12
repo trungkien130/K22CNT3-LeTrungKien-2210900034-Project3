@@ -12,9 +12,14 @@ import jakarta.validation.constraints.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Validated
 @RestController
@@ -23,7 +28,7 @@ public class LtkKhachhangController {
 
     @Autowired
     private LtkKhachhangService ltkKhachhangService;
-
+    private PasswordEncoder passwordEncoder;
     @PostMapping
     public ResponseEntity<String> save(@Valid @RequestBody LtkKhachhangVO vO) {
         try {
@@ -37,14 +42,28 @@ public class LtkKhachhangController {
     }
 
     @PostMapping("/login")
-    public LoginResponse login(@Valid @RequestBody LoginRequest loginRequest) {
-        String email = loginRequest.ltkEmail();
-        String password = loginRequest.ltkMatkhau();
-        LtkKhachhang khachhang = ltkKhachhangService.findByLtkEmail(email); // Add this method to service
-        if (khachhang != null && passwordEncoder.matches(password, khachhang.getLtkMatkhau())) {
-            return new LoginResponse(true, "Login successful", khachhang.getLtkRole() ? "ADMIN" : "USER");
+    public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
+        String email = loginRequest.get("ltkEmail");
+        String password = loginRequest.get("ltkMatkhau");
+        try {
+            LtkKhachhang khachhang = ltkKhachhangService.findByEmailAndPassword(email, password);
+            return ResponseEntity.ok(new HashMap<String, Object>() {{
+                put("success", true);
+                put("role", khachhang.getLtkRole() ? "ADMIN" : "USER");
+            }});
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", false);
+                        put("message", "Không tìm thấy khách hàng với email: " + email);
+                    }});
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new HashMap<String, Object>() {{
+                        put("success", false);
+                        put("message", "Mật khẩu không đúng");
+                    }});
         }
-        return new LoginResponse(false, "Invalid email or password", null);
     }
     @DeleteMapping("/{id}")
     public void delete(@Valid @NotNull @PathVariable("id") Integer id) {

@@ -88,10 +88,12 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 1000;
   }
   
   .login-popup {
     background: white;
+    
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
@@ -117,4 +119,166 @@
     color: white;
     margin-left: 10px;
   }
+  .switchpage-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+  }
   
+  .switchpage-text {
+    color: black;
+    font-size: 14px;
+  }
+  
+  .switchpage-btn {
+    color: #007bff;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    font-weight: bold;
+    margin-left: 5px;
+  }
+  /* General container styling */
+.container {
+  max-width: 1200px;
+  padding: 0 15px;
+}
+
+/* Heading styling */
+h2 {
+  font-weight: 700;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Card styling */
+.card {
+  border: none;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  background: #fff;
+  overflow: hidden;
+}
+
+.card:hover {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+}
+
+.card img {
+  border-radius: 10px 10px 0 0;
+  background: #f9f9f9;
+  padding: 10px;
+}
+
+.card span {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #444;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.card .text-muted {
+  font-size: 1rem;
+  color: #666;
+  font-weight: 400;
+}
+
+@media (max-width: 768px) {
+  .col-md-4 {
+    flex: 0 0 50%;
+    max-width: 50%;
+  }
+}
+
+@media (max-width: 576px) {
+  .col-md-4 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .card img {
+    height: 120px;
+  }
+}
+
+
+NavLink {
+  text-decoration: none;
+}
+
+NavLink:hover .card {
+  text-decoration: none;
+}
+
+.row {
+  justify-content: center;
+}
+
+.mb-3 {
+  margin-bottom: 1.5rem !important;
+}
+
+.container.my-5 {
+  background: #fafafa;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+.product-card {
+  position: relative;
+  border: none;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+  min-height: 450px; 
+}
+
+.product-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-body {
+  padding: 1rem;
+}
+
+.hover-buttons {
+  position: absolute;
+  bottom: 45%;
+  left: 12%;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease;
+  display: flex;
+}
+
+.product-card:hover .hover-buttons {
+  opacity: 1;
+  visibility: visible;
+}
+
+.btn-primary {
+  background-color: #007bff; /* Blue color for "Thêm vào giỏ hàng" */
+  border-color: #007bff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: #0056b3;
+  border-color: #0056b3;
+}
+
+.btn-secondary {
+  background-color: #6c757d; /* Gray color for "View Detail" */
+  border-color: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+  border-color: #5a6268;
+}

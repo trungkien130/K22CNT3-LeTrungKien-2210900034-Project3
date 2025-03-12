@@ -7,100 +7,64 @@ const EditModal = ({
   handleClose,
   data,
   endpoint,
-  fields = [],
+  fields,
   onSuccess,
+  idField = "ltkMakh", // Thêm prop idField với giá trị mặc định
 }) => {
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState(() =>
+    fields.reduce((acc, field) => {
+      acc[field.name] = "";
+      return acc;
+    }, {})
+  );
 
-  console.log("📌 Fields:", fields);
-  console.log("📌 Data:", data);
-
-  // Cập nhật formData dựa trên data và fields
   useEffect(() => {
-    if (!data || Object.keys(data).length === 0) {
-      console.warn("🚨 Không có dữ liệu để hiển thị!");
-      return;
-    }
-
-    const formatDate = (date) => {
-      if (!date || date === "Chưa cập nhật") return "";
-      const parsedDate = new Date(date);
-      return isNaN(parsedDate.getTime())
-        ? ""
-        : parsedDate.toISOString().split("T")[0];
-    };
-
-    // Ánh xạ dữ liệu từ `data` sang `formData` dựa trên `fields`, loại bỏ ID
-    const formattedData = {};
-    fields.forEach((field) => {
-      const fieldName = field.name;
-      let value =
-        data[fieldName] ?? data[fieldName.replace("ltk", "").toLowerCase()];
-
-      // Không bao gồm ID trong formData nếu nó là 'maSP' hoặc 'ltkMakh'
-      if (fieldName === "maSP" || fieldName === "ltkMakh") {
-        return; // Bỏ qua ID
-      }
-
-      // Format giá trị theo loại trường
-      if (field.type === "date") {
-        value = formatDate(value);
-      } else if (field.type === "select") {
-        if (fieldName === "ltkGioitinh") {
-          value = data.gioiTinh === "Nam" ? "True" : "false";
-        } else if (fieldName === "ltkTrangthai") {
-          value = data.trangThai === "Hoạt động" ? "True" : "false";
-        } else if (fieldName === "ltkRole") {
-          value = data.role === "Admin" ? "True" : "false";
+    if (data) {
+      const updatedFormData = fields.reduce((acc, field) => {
+        const key = field.name;
+        acc[key] = data[key] !== undefined ? data[key] : "";
+        if (field.type === "password") {
+          acc[key] = ""; // Không điền trước mật khẩu
         }
-      } else if (field.type === "number") {
-        value = value != null ? Number(value) : 0; // Chuyển thành số
-      } else {
-        value = value ?? "";
-      }
-
-      formattedData[fieldName] = value;
-    });
-
-    console.log("🔄 Dữ liệu đã format:", formattedData);
-    setFormData(formattedData);
+        return acc;
+      }, {});
+      setFormData(updatedFormData);
+      console.log("formData sau khi set:", updatedFormData);
+    }
   }, [data, fields]);
 
-  // Xử lý thay đổi dữ liệu
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // Nếu là trường số, chuyển đổi giá trị thành số
-    const updatedValue =
-      fields.find((field) => field.name === name)?.type === "number"
-        ? Number(value)
-        : value;
-    setFormData((prev) => ({ ...prev, [name]: updatedValue }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Xử lý gửi dữ liệu lên server
   const handleSubmit = async () => {
-    // Tạo payload mới, đảm bảo không có maSP hoặc ltkMakh
-    const payload = { ...formData };
-    delete payload.maSP;
-    delete payload.ltkMakh;
-
-    console.log("📤 Dữ liệu gửi lên BE:", JSON.stringify(payload, null, 2));
-
-    const id = data.maSP || data.maKH || data.ltkMakh; // Lấy ID từ data ban đầu
-    if (!id) {
-      alert("Lỗi: Không tìm thấy ID!");
-      return;
-    }
-
     try {
-      const response = await instance.put(`${endpoint}/${id}`, payload);
-      console.log("✅ Cập nhật thành công:", response.data);
+      // Kiểm tra mật khẩu nếu có trường mật khẩu trong fields
+      const passwordField = fields.find((field) => field.type === "password");
+      if (
+        passwordField &&
+        formData[passwordField.name] &&
+        formData[passwordField.name].length < 6
+      ) {
+        alert("Mật khẩu phải có ít nhất 6 ký tự!");
+        return;
+      }
+
+      // Sử dụng idField động thay vì cứng ltkMakh
+      await instance.put(`${endpoint}/${data[idField]}`, formData);
       alert("Cập nhật thành công!");
+      onSuccess();
       handleClose();
-      if (onSuccess) onSuccess(); // Gọi hàm làm mới danh sách
     } catch (error) {
-      console.error("❌ Lỗi khi cập nhật:", error.response?.data || error);
-      alert("Cập nhật thất bại!");
+      console.error(
+        "❌ Lỗi khi cập nhật:",
+        error.response?.data || error.message
+      );
+      alert(
+        "Cập nhật thất bại: " +
+          (error.response?.data?.message || "Vui lòng thử lại!")
+      );
     }
   };
 
@@ -111,40 +75,46 @@ const EditModal = ({
       </Modal.Header>
       <Modal.Body>
         <Form>
-          {fields.length > 0 ? (
-            fields.map(({ name, label, type, options }, index) => {
-              // Không hiển thị trường ID trong form
-              if (name === "maSP" || name === "ltkMakh") return null;
-
-              return (
-                <Form.Group key={name || `field-${index}`} className="mb-3">
-                  <Form.Label>{label}</Form.Label>
-                  {type === "select" ? (
-                    <Form.Select
-                      name={name}
-                      value={formData[name] ?? ""}
-                      onChange={handleChange}
-                    >
-                      {options?.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </Form.Select>
-                  ) : (
-                    <Form.Control
-                      type={type}
-                      name={name}
-                      value={formData[name] ?? ""}
-                      onChange={handleChange}
-                    />
-                  )}
-                </Form.Group>
-              );
-            })
-          ) : (
-            <p className="text-danger">⚠️ Không có dữ liệu để hiển thị!</p>
-          )}
+          {fields.map(({ name, label, type, options }) => (
+            <Form.Group key={name} className="mb-3">
+              <Form.Label>{label}</Form.Label>
+              {type === "select" ? (
+                <Form.Select
+                  name={name}
+                  value={formData[name] || ""}
+                  onChange={handleChange}
+                >
+                  <option value="">Chọn {label}</option>
+                  {options?.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </Form.Select>
+              ) : (
+                <Form.Control
+                  type={type}
+                  name={name}
+                  value={formData[name] || ""}
+                  onChange={handleChange}
+                  required={
+                    type !== "date" && type !== "select" && type !== "password" // Mật khẩu không bắt buộc
+                  }
+                  minLength={type === "password" ? 6 : undefined}
+                  placeholder={
+                    type === "password"
+                      ? "Nhập mật khẩu mới (tùy chọn)"
+                      : `Nhập ${label}`
+                  }
+                />
+              )}
+              {type === "password" && (
+                <Form.Text className="text-muted">
+                  Để trống nếu không muốn thay đổi mật khẩu.
+                </Form.Text>
+              )}
+            </Form.Group>
+          ))}
         </Form>
       </Modal.Body>
       <Modal.Footer>

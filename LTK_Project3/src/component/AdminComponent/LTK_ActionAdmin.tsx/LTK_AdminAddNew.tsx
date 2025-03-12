@@ -1,101 +1,106 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import instance from "../../../Api/LTK_Api";
 
-interface AddNewProps {
-  show: boolean;
-  handleClose: () => void;
-  endpoint: string;
-  fields: {
-    name: string;
-    label: string;
-    type: string;
-    options?: { value: any; label: string }[];
-  }[];
-  onSuccess: () => void;
-}
+const LTK_AddNew = ({ show, handleClose, endpoint, fields, onSuccess }) => {
+  const [formData, setFormData] = useState(() =>
+    fields.reduce((acc, field) => {
+      acc[field.name] = "";
+      return acc;
+    }, {})
+  );
 
-const LTK_AddNew: React.FC<AddNewProps> = ({
-  show,
-  handleClose,
-  endpoint,
-  fields,
-  onSuccess,
-}) => {
-  const [formData, setFormData] = useState<Record<string, any>>({});
+  useEffect(() => {
+    if (!show) {
+      // Reset form when modal closes
+      setFormData(
+        fields.reduce((acc, field) => {
+          acc[field.name] = "";
+          return acc;
+        }, {})
+      );
+    }
+  }, [show, fields]);
 
-  // Xử lý thay đổi input
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Gửi dữ liệu lên API để thêm mới
-  const handleSubmit = async () => {
-    console.log("📤 Dữ liệu gửi lên BE:", formData);
-
-    // Kiểm tra xem có trường nào bị thiếu không
-    const missingFields = fields.filter(
-      (field) => !formData[field.name] || formData[field.name].trim() === ""
-    );
-
-    if (missingFields.length > 0) {
-      const missingFieldNames = missingFields
-        .map((field) => field.label)
-        .join(", ");
-      console.error("❌ Lỗi: Thiếu dữ liệu:", missingFieldNames);
-      alert(`Vui lòng nhập đầy đủ thông tin: ${missingFieldNames}`);
-      return;
-    }
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
+      // Validate required fields
+      const requiredFields = fields.filter((field) => field.type !== "date");
+      const missingFields = requiredFields.filter(
+        (field) => !formData[field.name].trim()
+      );
+      if (missingFields.length > 0) {
+        alert(
+          `Vui lòng điền đầy đủ các trường bắt buộc: ${missingFields
+            .map((f) => f.label)
+            .join(", ")}`
+        );
+        return;
+      }
+
+      // Ensure email is valid
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (formData.ltkEmail && !emailRegex.test(formData.ltkEmail)) {
+        alert("Email không hợp lệ!");
+        return;
+      }
+
+      // Send POST request
       const response = await instance.post(endpoint, formData);
-      console.log("✅ Kết quả trả về từ BE:", response.data);
+      console.log("Thêm mới thành công:", response.data);
       alert("Thêm mới thành công!");
-      onSuccess(); // Gọi callback để reload dữ liệu
-      handleClose(); // Đóng modal
+      onSuccess();
+      handleClose();
     } catch (error) {
       console.error(
         "❌ Lỗi khi thêm mới:",
         error.response?.data || error.message
       );
-      alert("Thêm mới thất bại!");
+      alert(
+        "Thêm mới thất bại: " +
+          (error.response?.data?.message ||
+            "Vui lòng kiểm tra dữ liệu và thử lại!")
+      );
     }
   };
 
   return (
     <Modal show={show} onHide={handleClose} centered>
       <Modal.Header closeButton>
-        <Modal.Title>➕ Thêm mới</Modal.Title>
+        <Modal.Title>➕ Thêm khách hàng mới</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Form>
-          {fields.map((field) => (
-            <Form.Group key={field.name} className="mb-3">
-              <Form.Label>{field.label}</Form.Label>
-
-              {/* ✅ Nếu type là "select" thì hiển thị dropdown */}
-              {field.type === "select" && field.options ? (
+        <Form onSubmit={handleSubmit}>
+          {fields.map(({ name, label, type, options }) => (
+            <Form.Group key={name} className="mb-3">
+              <Form.Label>{label}</Form.Label>
+              {type === "select" ? (
                 <Form.Select
-                  name={field.name}
-                  value={formData[field.name] || ""}
+                  name={name}
+                  value={formData[name] || ""}
                   onChange={handleChange}
                 >
-                  <option value="">-- Chọn {field.label} --</option>
-                  {field.options.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
+                  <option value="">Chọn {label}</option>
+                  {options?.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
                     </option>
                   ))}
                 </Form.Select>
               ) : (
                 <Form.Control
-                  type={field.type}
-                  name={field.name}
-                  value={formData[field.name] || ""}
+                  type={type}
+                  name={name}
+                  value={formData[name] || ""}
                   onChange={handleChange}
+                  required={type !== "date"} // Optional for date fields
+                  placeholder={`Nhập ${label}`}
                 />
               )}
             </Form.Group>
@@ -106,8 +111,8 @@ const LTK_AddNew: React.FC<AddNewProps> = ({
         <Button variant="secondary" onClick={handleClose}>
           Đóng
         </Button>
-        <Button variant="success" onClick={handleSubmit}>
-          Lưu
+        <Button variant="primary" onClick={handleSubmit}>
+          Thêm mới
         </Button>
       </Modal.Footer>
     </Modal>
