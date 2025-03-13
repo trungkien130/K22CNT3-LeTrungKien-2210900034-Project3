@@ -6,6 +6,7 @@ import LTK_Home from "./Page/LTK_Home";
 import LTK_DetailProducts from "./component/HomeComponent/LTK_DetailProducts";
 import LTK_Categories from "./component/HomeComponent/LTK_Categories";
 import PrivateRoute from "./Api/LTK_PrivateRole"; // Đường dẫn đến PrivateRoute.js
+import Cart from "./component/HomeComponent/LTK_Cart";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           </PrivateRoute>
         }
       />
+      <Route path="/cart" element={<Cart />} />
       <Route path="/products" element={<LTK_Categories />} />
       <Route path="/productDetail/:id" element={<LTK_DetailProducts />} />
     </Routes>

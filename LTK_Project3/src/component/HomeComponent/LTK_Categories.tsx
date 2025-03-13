@@ -15,6 +15,7 @@ const LTK_Categories = () => {
       try {
         const response = await instance.get("/ltkSanpham");
         setProducts(response.data);
+        console.log(response);
       } catch (error) {
         console.error("Lỗi khi lấy sản phẩm:", error);
       }
@@ -40,13 +41,27 @@ const LTK_Categories = () => {
     setSortOrder(e.target.value);
   };
 
+  const addToCart = async (maSanPham) => {
+    try {
+      await instance.post("/ltkGioHang", {
+        maSanPham,
+        soLuong: 1,
+      });
+      alert("Thêm vào giỏ hàng thành công!");
+    } catch (error) {
+      console.error("Lỗi khi thêm vào giỏ hàng:", error);
+      alert(
+        "Thêm vào giỏ hàng thất bại: " +
+          (error.response?.data?.message || "Vui lòng thử lại!")
+      );
+    }
+  };
+
   return (
     <>
       {location.pathname === "/products" && <Header />}
-
       <div className="container my-5">
         <h2 className="text-center mb-4">Danh Sách Sản Phẩm</h2>
-
         <div className="row mb-4">
           <div className="col-md-6">
             <input
@@ -69,7 +84,6 @@ const LTK_Categories = () => {
             </select>
           </div>
         </div>
-
         <div className="row">
           {filteredAndSortedProducts.length > 0 ? (
             filteredAndSortedProducts.map((product, index) => (
@@ -90,9 +104,11 @@ const LTK_Categories = () => {
                       {product.gia.toLocaleString()} VND
                     </p>
                   </NavLink>
-                  {/* Buttons hidden by default, shown on hover */}
                   <div className="hover-buttons">
-                    <button className="btn btn-primary me-2">
+                    <button
+                      className="btn btn-primary me-2"
+                      onClick={() => addToCart(product.maSP)}
+                    >
                       Thêm vào giỏ hàng
                     </button>
                     <NavLink
@@ -110,7 +126,6 @@ const LTK_Categories = () => {
           )}
         </div>
       </div>
-
       {location.pathname === "/products" && <Footer />}
     </>
   );

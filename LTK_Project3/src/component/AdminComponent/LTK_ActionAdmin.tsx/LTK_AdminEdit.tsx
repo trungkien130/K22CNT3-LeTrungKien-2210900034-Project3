@@ -9,10 +9,15 @@ const EditModal = ({
   endpoint,
   fields,
   onSuccess,
-  idField = "ltkMakh", // Thêm prop idField với giá trị mặc định
+  idField = "ltkMakh",
 }) => {
+  // Lọc bỏ các trường không mong muốn
+  const filteredFields = fields.filter(
+    (field) => !["maKho", "maNhaCungCap", "maKhuyenMai"].includes(field.name)
+  );
+
   const [formData, setFormData] = useState(() =>
-    fields.reduce((acc, field) => {
+    filteredFields.reduce((acc, field) => {
       acc[field.name] = "";
       return acc;
     }, {})
@@ -20,7 +25,7 @@ const EditModal = ({
 
   useEffect(() => {
     if (data) {
-      const updatedFormData = fields.reduce((acc, field) => {
+      const updatedFormData = filteredFields.reduce((acc, field) => {
         const key = field.name;
         acc[key] = data[key] !== undefined ? data[key] : "";
         if (field.type === "password") {
@@ -31,7 +36,7 @@ const EditModal = ({
       setFormData(updatedFormData);
       console.log("formData sau khi set:", updatedFormData);
     }
-  }, [data, fields]);
+  }, [data, filteredFields]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -41,7 +46,9 @@ const EditModal = ({
   const handleSubmit = async () => {
     try {
       // Kiểm tra mật khẩu nếu có trường mật khẩu trong fields
-      const passwordField = fields.find((field) => field.type === "password");
+      const passwordField = filteredFields.find(
+        (field) => field.type === "password"
+      );
       if (
         passwordField &&
         formData[passwordField.name] &&
@@ -75,7 +82,7 @@ const EditModal = ({
       </Modal.Header>
       <Modal.Body>
         <Form>
-          {fields.map(({ name, label, type, options }) => (
+          {filteredFields.map(({ name, label, type, options }) => (
             <Form.Group key={name} className="mb-3">
               <Form.Label>{label}</Form.Label>
               {type === "select" ? (
@@ -98,7 +105,7 @@ const EditModal = ({
                   value={formData[name] || ""}
                   onChange={handleChange}
                   required={
-                    type !== "date" && type !== "select" && type !== "password" // Mật khẩu không bắt buộc
+                    type !== "date" && type !== "select" && type !== "password"
                   }
                   minLength={type === "password" ? 6 : undefined}
                   placeholder={

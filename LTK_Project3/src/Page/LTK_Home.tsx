@@ -9,6 +9,7 @@ import Header from "../component/HomeComponent/LTK_Header";
 import Footer from "../component/HomeComponent/LTK_Footer";
 import Banner from "../component/HomeComponent/LTK_Banner";
 import Categories from "../component/HomeComponent/LTK_Categories";
+import Cart from "../component/HomeComponent/LTK_Cart";
 
 function LTK_Home() {
   const [dataApi, setDataApi] = useState([]);
@@ -46,7 +47,6 @@ function LTK_Home() {
           onSwitchToRegister={() => setModalType("register")}
         />
       )}
-
       <Banner />
       <Categories />
       <Footer />

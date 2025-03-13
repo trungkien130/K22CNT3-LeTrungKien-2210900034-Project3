@@ -3,8 +3,13 @@ import { Modal, Button, Form } from "react-bootstrap";
 import instance from "../../../Api/LTK_Api";
 
 const LTK_AddNew = ({ show, handleClose, endpoint, fields, onSuccess }) => {
+  // Lọc bỏ các trường không mong muốn
+  const filteredFields = fields.filter(
+    (field) => !["maKho", "maNhaCungCap", "maKhuyenMai"].includes(field.name)
+  );
+
   const [formData, setFormData] = useState(() =>
-    fields.reduce((acc, field) => {
+    filteredFields.reduce((acc, field) => {
       acc[field.name] = "";
       return acc;
     }, {})
@@ -14,13 +19,13 @@ const LTK_AddNew = ({ show, handleClose, endpoint, fields, onSuccess }) => {
     if (!show) {
       // Reset form when modal closes
       setFormData(
-        fields.reduce((acc, field) => {
+        filteredFields.reduce((acc, field) => {
           acc[field.name] = "";
           return acc;
         }, {})
       );
     }
-  }, [show, fields]);
+  }, [show, filteredFields]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,7 +36,9 @@ const LTK_AddNew = ({ show, handleClose, endpoint, fields, onSuccess }) => {
     e.preventDefault();
     try {
       // Validate required fields
-      const requiredFields = fields.filter((field) => field.type !== "date");
+      const requiredFields = filteredFields.filter(
+        (field) => field.type !== "date"
+      );
       const missingFields = requiredFields.filter(
         (field) => !formData[field.name].trim()
       );
@@ -77,7 +84,7 @@ const LTK_AddNew = ({ show, handleClose, endpoint, fields, onSuccess }) => {
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={handleSubmit}>
-          {fields.map(({ name, label, type, options }) => (
+          {filteredFields.map(({ name, label, type, options }) => (
             <Form.Group key={name} className="mb-3">
               <Form.Label>{label}</Form.Label>
               {type === "select" ? (

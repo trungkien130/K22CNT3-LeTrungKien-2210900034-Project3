@@ -14,9 +14,6 @@ export default function LTK_Products() {
     { name: "moTa", label: "Mô tả", type: "text" },
     { name: "gia", label: "Giá", type: "number" },
     { name: "soLuongTon", label: "Số lượng", type: "number" },
-    { name: "maKho", label: "Mã kho", type: "number" },
-    { name: "maNCC", label: "Mã nhà cung cấp", type: "number" },
-    { name: "maKM", label: "Khuyến mãi", type: "number" },
     { name: "hinhAnh", label: "Hình ảnh (URL)", type: "text" },
   ];
 
