@@ -1,16 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { FaSearch, FaUser, FaShoppingCart } from "react-icons/fa";
-import { NavLink } from "react-router-dom";
-import axios from "axios";
+import { NavLink, useNavigate } from "react-router-dom";
 import logo from "../../Img/logo.png";
-import instance from "../../Api/LTK_Api";
 
-const Header = ({ setModalType }) => {
+const Ltk_Header = ({
+  setModalType,
+}: {
+  setModalType: (type: string) => void;
+}) => {
   const [showDropdown, setShowDropdown] = useState(false);
-  const [cartCount, setCartCount] = useState(0);
+  const [user, setUser] = useState<{ name: string; role: string } | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+    navigate("/");
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
       if (!event.target.closest(".user-dropdown")) {
         setShowDropdown(false);
       }
@@ -42,8 +58,8 @@ const Header = ({ setModalType }) => {
             </NavLink>
           </li>
           <li className="nav-item">
-            <NavLink to="/contact" className="nav-link">
-              Liên Hệ
+            <NavLink to="#" className="nav-link">
+              Liên Hệ: 0913088169
             </NavLink>
           </li>
         </ul>
@@ -57,35 +73,43 @@ const Header = ({ setModalType }) => {
             />
             {showDropdown && (
               <div className="dropdown-menu show position-absolute end-0 mt-2 p-2 shadow bg-white rounded">
-                <button
-                  className="dropdown-item btn btn-outline-primary w-100 mb-2"
-                  onClick={() => setModalType("login")}
-                >
-                  Đăng nhập
-                </button>
-                <button
-                  className="dropdown-item btn w-100"
-                  onClick={() => setModalType("register")}
-                >
-                  Đăng ký
-                </button>
+                {user ? (
+                  <>
+                    <div className="dropdown-item text-center fw-bold">
+                      Xin chào, {user.email}
+                    </div>
+                    <button
+                      className="dropdown-item btn btn-outline-danger w-100 mt-2"
+                      onClick={handleLogout}
+                    >
+                      Đăng xuất
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      className="dropdown-item btn btn-outline-primary w-100 mb-2"
+                      onClick={() => setModalType("login")}
+                    >
+                      Đăng nhập
+                    </button>
+                    <button
+                      className="dropdown-item btn w-100"
+                      onClick={() => setModalType("register")}
+                    >
+                      Đăng ký
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
           <NavLink
             to="/cart"
-            className="nav-link me-3 position-relative"
+            className="nav-link me-3"
             style={{ color: "black" }}
           >
             <FaShoppingCart size={20} />
-            {cartCount > 0 && (
-              <span
-                className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                style={{ fontSize: "12px", padding: "2px 6px" }}
-              >
-                {cartCount}
-              </span>
-            )}
           </NavLink>
         </div>
       </div>
@@ -93,4 +117,4 @@ const Header = ({ setModalType }) => {
   );
 };
 
-export default Header;
+export default Ltk_Header;

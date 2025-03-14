@@ -3,8 +3,8 @@ import { Route, Routes } from "react-router-dom";
 import Sidebar from "../component/AdminComponent/LTK_Sidebar";
 import Navbar from "../component/AdminComponent/LTK_NavAdmin";
 import Dashboard from "../component/AdminComponent/LTK_Dashboard";
-import LTK_AdminProducts from "../component/AdminComponent/LTK_Products";
-import LTK_AdminCustomers from "../component/AdminComponent/LTK_KhachHang";
+import LTK_KhachHang from "../component/AdminComponent/LTK_KhachHang";
+import LTK_Products from "../component/AdminComponent/LTK_Products";
 
 function LTK_Admin() {
   return (
@@ -23,8 +23,8 @@ function LTK_Admin() {
         <div className="flex-grow-1 p-3 overflow-auto">
           <Routes>
             <Route index element={<Dashboard />} />
-            <Route path="adminProducts" element={<LTK_AdminProducts />} />
-            <Route path="adminKhachhang" element={<LTK_AdminCustomers />} />
+            <Route path="adminProducts" element={<LTK_Products />} />
+            <Route path="adminKhachHang" element={<LTK_KhachHang />} />
           </Routes>
         </div>
       </div>

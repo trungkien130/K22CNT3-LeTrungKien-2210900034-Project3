@@ -1,40 +1,51 @@
-import React, { useState, useEffect } from "react";
-import instance from "../../Api/LTK_Api";
-import Footer from "./LTK_Footer";
-import Header from "./LTK_Header";
+import { useEffect, useState } from "react";
+
 import { NavLink } from "react-router-dom";
+import "../../css/ltkStyle.css";
+import LTK_Header from "./LTK_Header"; // Ensure LTK_Header is imported
+import LTK_Footer from "./LTK_Footer"; // Ensure LTK_Footer is imported
+import instance from "../../Api/LTK_Api";
+import { useAuth } from "../../Api/LTK_AuthContext";
 
 interface CartItem {
   maGioHang: number;
-  maKhachHang?: number;
   maSanPham: number;
   soLuong: number;
-  ngayThem: string;
 }
 
 interface Product {
-  maSanPham: number;
-  tenSanPham: string;
+  maSP: number;
+  tenSP: string;
   gia: number;
 }
 
-const Cart: React.FC = () => {
+const LTK_Cart = () => {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  const setModalType = (type: string) => {
-    console.log("Modal type set to:", type);
-  };
-
+  const [loading, setLoading] = useState(true);
+  const { setModalType } = useAuth();
   const fetchCartData = async () => {
     try {
-      const cartResponse = await instance.get("/ltkGioHang");
-      setCartItems(cartResponse.data);
-      const productResponse = await instance.get("/ltkSanPham"); // Changed from /api/san-pham
-      setProducts(productResponse.data);
+      setLoading(true);
+      const [cartRes, productRes] = await Promise.all([
+        instance.get("/ltkGiohang"),
+        instance.get("/ltkSanpham"),
+      ]);
+
+      console.log("Cart data:", cartRes.data);
+      console.log("Product data:", productRes.data);
+
+      // Handle cart data
+      const cartData = cartRes.data.content || cartRes.data;
+      setCartItems(Array.isArray(cartData) ? cartData : []);
+
+      // Handle product data
+      const productData = productRes.data.content || productRes.data;
+      setProducts(Array.isArray(productData) ? productData : []);
     } catch (error) {
       console.error("Error fetching cart data:", error);
+      setCartItems([]);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -44,213 +55,143 @@ const Cart: React.FC = () => {
     fetchCartData();
   }, []);
 
-  const increaseQuantity = async (maGioHang: number) => {
-    const updatedItems = cartItems.map((item) =>
-      item.maGioHang === maGioHang
-        ? { ...item, soLuong: item.soLuong + 1 }
-        : item
-    );
-    setCartItems(updatedItems);
+  const updateQuantity = async (
+    maGioHang: number,
+    newQuantity: number,
+    maSanPham: number
+  ) => {
     try {
-      await instance.put(`/ltkGioHang/${maGioHang}`, {
-        soLuong: updatedItems.find((item) => item.maGioHang === maGioHang)
-          ?.soLuong,
+      // Optimistically update the local state
+      setCartItems((prevItems) =>
+        prevItems.map((item) =>
+          item.maGioHang === maGioHang
+            ? { ...item, soLuong: newQuantity }
+            : item
+        )
+      );
+
+      // Update the backend
+      await instance.put(`/ltkGiohang/${maGioHang}`, {
+        soLuong: newQuantity,
+        maSanPham,
       });
-      fetchCartData(); // Refresh cart after update
+
+      // Fetch updated cart data to ensure consistency
+      await fetchCartData();
     } catch (error) {
-      console.error("Error updating quantity:", error);
+      console.error("Lỗi khi cập nhật số lượng:", error);
+      // Revert the state on failure
+      await fetchCartData();
+      alert("Cập nhật số lượng thất bại. Vui lòng thử lại!");
     }
   };
 
-  const decreaseQuantity = async (maGioHang: number) => {
-    const updatedItems = cartItems.map((item) =>
-      item.maGioHang === maGioHang && item.soLuong > 1
-        ? { ...item, soLuong: item.soLuong - 1 }
-        : item
-    );
-    setCartItems(updatedItems);
-    try {
-      await instance.put(`/ltkGioHang/${maGioHang}`, {
-        soLuong: updatedItems.find((item) => item.maGioHang === maGioHang)
-          ?.soLuong,
-      });
-      fetchCartData(); // Refresh cart after update
-    } catch (error) {
-      console.error("Error updating quantity:", error);
+  const increaseQuantity = (maGioHang: number, maSanPham: number) => {
+    const item = cartItems.find((item) => item.maGioHang === maGioHang);
+    if (item) {
+      const newQuantity = item.soLuong + 1;
+      updateQuantity(maGioHang, newQuantity, maSanPham);
+    }
+  };
+
+  const decreaseQuantity = (maGioHang: number, maSanPham: number) => {
+    const item = cartItems.find((item) => item.maGioHang === maGioHang);
+    if (item && item.soLuong > 1) {
+      const newQuantity = item.soLuong - 1;
+      updateQuantity(maGioHang, newQuantity, maSanPham);
     }
   };
 
   const removeItem = async (maGioHang: number) => {
-    setCartItems((prevItems) =>
-      prevItems.filter((item) => item.maGioHang !== maGioHang)
-    );
     try {
-      await instance.delete(`/ltkGioHang/${maGioHang}`);
-      fetchCartData(); // Refresh cart after removal
+      await instance.delete(`/ltkGiohang/${maGioHang}`);
+      await fetchCartData();
     } catch (error) {
-      console.error("Error removing item:", error);
+      console.error("Lỗi khi xóa sản phẩm:", error);
+      alert("Xóa sản phẩm thất bại. Vui lòng thử lại!");
     }
+  };
+
+  const getProductById = (maSanPham: number) => {
+    return products.find((product) => product.maSP === maSanPham);
   };
 
   const getTotalPrice = () => {
     return cartItems.reduce((total, item) => {
-      const product = products.find((p) => p.maSanPham === item.maSanPham);
+      const product = getProductById(item.maSanPham);
       return total + (product ? product.gia * item.soLuong : 0);
     }, 0);
   };
 
-  if (loading) {
-    return (
-      <>
-        <Header setModalType={setModalType} />
-        <div>Đang tải giỏ hàng...</div>
-        <Footer />
-      </>
-    );
-  }
-
   return (
     <>
-      <Header setModalType={setModalType} />
-      <div
-        className="cart-container"
-        style={{ maxWidth: "800px", margin: "0 auto", padding: "20px" }}
-      >
-        <h2
-          style={{ fontSize: "24px", fontWeight: "bold", marginBottom: "20px" }}
-        >
-          Giỏ hàng của bạn
-        </h2>
-        {cartItems.length === 0 ? (
-          <div
-            style={{
-              backgroundColor: "#fff3cd",
-              border: "1px solid #ffeeba",
-              color: "#856404",
-              padding: "10px",
-              borderRadius: "4px",
-            }}
-          >
-            <span>
-              Giỏ hàng trống. Quay lại{" "}
-              <NavLink
-                to="/products"
-                style={{ color: "#007bff", textDecoration: "underline" }}
-              >
-                cửa hàng
-              </NavLink>{" "}
-              để mua sắm.
-            </span>
+      <LTK_Header setModalType={setModalType} />
+      <div className="cart-container">
+        <h2>Giỏ Hàng Của Bạn</h2>
+        {loading ? (
+          <p>Đang tải...</p>
+        ) : cartItems.length === 0 ? (
+          <div className="empty-cart">
+            <p>
+              Giỏ hàng của bạn đang trống. Quay lại{" "}
+              <NavLink to="/products">trang sản phẩm</NavLink> để tiếp tục mua
+              sắm!
+            </p>
           </div>
         ) : (
-          <div>
-            <table
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-                border: "1px solid #ddd",
-              }}
-            >
+          <>
+            <table className="cart-table">
               <thead>
-                <tr style={{ backgroundColor: "#f5f5f5" }}>
-                  <th style={{ border: "1px solid #ddd", padding: "10px" }}>
-                    Sản phẩm
-                  </th>
-                  <th style={{ border: "1px solid #ddd", padding: "10px" }}>
-                    Số lượng
-                  </th>
-                  <th style={{ border: "1px solid #ddd", padding: "10px" }}>
-                    Giá
-                  </th>
-                  <th style={{ border: "1px solid #ddd", padding: "10px" }}>
-                    Thành tiền
-                  </th>
-                  <th style={{ border: "1px solid #ddd", padding: "10px" }}>
-                    Hành động
-                  </th>
+                <tr>
+                  <th>Sản phẩm</th>
+                  <th>Số lượng</th>
+                  <th>Giá</th>
+                  <th>Thành tiền</th>
+                  <th>Hành động</th>
                 </tr>
               </thead>
               <tbody>
                 {cartItems.map((item) => {
-                  const product = products.find(
-                    (p) => p.maSanPham === item.maSanPham
-                  );
+                  const product = getProductById(item.maSanPham);
                   return (
-                    <tr
-                      key={item.maGioHang}
-                      style={{ backgroundColor: "#fff" }}
-                    >
-                      <td style={{ border: "1px solid #ddd", padding: "10px" }}>
-                        {product ? product.tenSanPham : `SP ${item.maSanPham}`}
+                    <tr key={item.maGioHang}>
+                      <td>
+                        {product ? product.tenSP : "Sản phẩm không xác định"}
                       </td>
-                      <td
-                        style={{
-                          border: "1px solid #ddd",
-                          padding: "10px",
-                          textAlign: "center",
-                        }}
-                      >
+                      <td>
                         <button
-                          onClick={() => decreaseQuantity(item.maGioHang)}
-                          style={{
-                            backgroundColor: "#ddd",
-                            border: "1px solid #ccc",
-                            padding: "5px 10px",
-                            borderRadius: "4px 0 0 4px",
-                            cursor: "pointer",
-                          }}
+                          className="quantity-btn"
+                          onClick={() =>
+                            decreaseQuantity(item.maGioHang, item.maSanPham)
+                          }
                         >
                           -
                         </button>
-                        {item.soLuong}
+                        <span>{item.soLuong}</span>
                         <button
-                          onClick={() => increaseQuantity(item.maGioHang)}
-                          style={{
-                            backgroundColor: "#ddd",
-                            border: "1px solid #ccc",
-                            padding: "5px 10px",
-                            borderRadius: "0 4px 4px 0",
-                            cursor: "pointer",
-                          }}
+                          className="quantity-btn"
+                          onClick={() =>
+                            increaseQuantity(item.maGioHang, item.maSanPham)
+                          }
                         >
                           +
                         </button>
                       </td>
-                      <td
-                        style={{
-                          border: "1px solid #ddd",
-                          padding: "10px",
-                          textAlign: "center",
-                        }}
-                      >
-                        {product ? product.gia : "N/A"} VNĐ
+                      <td>
+                        {product
+                          ? product.gia.toLocaleString() + " VNĐ"
+                          : "N/A"}
                       </td>
-                      <td
-                        style={{
-                          border: "1px solid #ddd",
-                          padding: "10px",
-                          textAlign: "center",
-                        }}
-                      >
-                        {product ? product.gia * item.soLuong : "N/A"} VNĐ
+                      <td>
+                        {product
+                          ? (product.gia * item.soLuong).toLocaleString() +
+                            " VNĐ"
+                          : "N/A"}
                       </td>
-                      <td
-                        style={{
-                          border: "1px solid #ddd",
-                          padding: "10px",
-                          textAlign: "center",
-                        }}
-                      >
+                      <td>
                         <button
+                          className="remove-button"
                           onClick={() => removeItem(item.maGioHang)}
-                          style={{
-                            backgroundColor: "#dc3545",
-                            color: "#fff",
-                            padding: "5px 10px",
-                            border: "none",
-                            borderRadius: "4px",
-                            cursor: "pointer",
-                          }}
                         >
                           Xóa
                         </button>
@@ -260,49 +201,13 @@ const Cart: React.FC = () => {
                 })}
               </tbody>
             </table>
-            <h3
-              style={{
-                fontSize: "20px",
-                fontWeight: "bold",
-                marginTop: "20px",
-              }}
-            >
-              Tổng tiền: {getTotalPrice()} VNĐ
-            </h3>
-            <button
-              style={{
-                backgroundColor: "#007bff",
-                color: "#fff",
-                padding: "10px 20px",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-                marginTop: "20px",
-              }}
-            >
-              Thanh toán
-            </button>
-            <button
-              onClick={fetchCartData}
-              style={{
-                backgroundColor: "#6c757d",
-                color: "#fff",
-                padding: "10px 20px",
-                border: "none",
-                borderRadius: "4px",
-                cursor: "pointer",
-                marginTop: "10px",
-                marginLeft: "10px",
-              }}
-            >
-              Làm mới giỏ hàng
-            </button>
-          </div>
+            <h3>Tổng tiền: {getTotalPrice().toLocaleString()} VNĐ</h3>
+          </>
         )}
       </div>
-      <Footer />
+      <LTK_Footer />
     </>
   );
 };
 
-export default Cart;
+export default LTK_Cart;

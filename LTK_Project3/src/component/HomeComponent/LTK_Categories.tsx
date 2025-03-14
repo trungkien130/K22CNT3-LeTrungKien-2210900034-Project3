@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import instance from "../../Api/LTK_Api";
-import Header from "./LTK_Header";
-import Footer from "./LTK_Footer";
+import LTK_Header from "./LTK_Header";
+import LTK_Footer from "./LTK_Footer";
+import { useAuth } from "../../Api/LTK_AuthContext";
 
 const LTK_Categories = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortOrder, setSortOrder] = useState("none");
+  const { setModalType } = useAuth();
   const location = useLocation();
 
   useEffect(() => {
@@ -43,7 +45,7 @@ const LTK_Categories = () => {
 
   const addToCart = async (maSanPham) => {
     try {
-      await instance.post("/ltkGioHang", {
+      await instance.post("/ltkGiohang", {
         maSanPham,
         soLuong: 1,
       });
@@ -59,7 +61,9 @@ const LTK_Categories = () => {
 
   return (
     <>
-      {location.pathname === "/products" && <Header />}
+      {location.pathname === "/products" && (
+        <LTK_Header setModalType={setModalType} />
+      )}
       <div className="container my-5">
         <h2 className="text-center mb-4">Danh Sách Sản Phẩm</h2>
         <div className="row mb-4">
@@ -126,7 +130,7 @@ const LTK_Categories = () => {
           )}
         </div>
       </div>
-      {location.pathname === "/products" && <Footer />}
+      {location.pathname === "/products" && <LTK_Footer />}
     </>
   );
 };

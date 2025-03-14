@@ -2,6 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Modal, Button, Form } from "react-bootstrap";
 import instance from "../../../Api/LTK_Api";
 
+// Lọc bỏ các trường không mong muốn ngoài component để tránh tính toán lại mỗi render
+const filterFields = (fields) =>
+  fields.filter(
+    (field) => !["maKho", "maNhaCungCap", "maKhuyenMai"].includes(field.name)
+  );
+
 const EditModal = ({
   show,
   handleClose,
@@ -11,11 +17,9 @@ const EditModal = ({
   onSuccess,
   idField = "ltkMakh",
 }) => {
-  // Lọc bỏ các trường không mong muốn
-  const filteredFields = fields.filter(
-    (field) => !["maKho", "maNhaCungCap", "maKhuyenMai"].includes(field.name)
-  );
+  const filteredFields = filterFields(fields);
 
+  // Khởi tạo state formData
   const [formData, setFormData] = useState(() =>
     filteredFields.reduce((acc, field) => {
       acc[field.name] = "";
@@ -26,17 +30,12 @@ const EditModal = ({
   useEffect(() => {
     if (data) {
       const updatedFormData = filteredFields.reduce((acc, field) => {
-        const key = field.name;
-        acc[key] = data[key] !== undefined ? data[key] : "";
-        if (field.type === "password") {
-          acc[key] = ""; // Không điền trước mật khẩu
-        }
+        acc[field.name] = data[field.name] ?? "";
         return acc;
       }, {});
       setFormData(updatedFormData);
-      console.log("formData sau khi set:", updatedFormData);
     }
-  }, [data, filteredFields]);
+  }, [data]); // Chỉ re-render khi `data` thay đổi
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,7 +44,7 @@ const EditModal = ({
 
   const handleSubmit = async () => {
     try {
-      // Kiểm tra mật khẩu nếu có trường mật khẩu trong fields
+      // Kiểm tra mật khẩu chỉ nếu người dùng nhập
       const passwordField = filteredFields.find(
         (field) => field.type === "password"
       );
@@ -58,7 +57,6 @@ const EditModal = ({
         return;
       }
 
-      // Sử dụng idField động thay vì cứng ltkMakh
       await instance.put(`${endpoint}/${data[idField]}`, formData);
       alert("Cập nhật thành công!");
       onSuccess();
@@ -88,7 +86,7 @@ const EditModal = ({
               {type === "select" ? (
                 <Form.Select
                   name={name}
-                  value={formData[name] || ""}
+                  value={formData[name]}
                   onChange={handleChange}
                 >
                   <option value="">Chọn {label}</option>
@@ -102,16 +100,14 @@ const EditModal = ({
                 <Form.Control
                   type={type}
                   name={name}
-                  value={formData[name] || ""}
+                  value={formData[name]}
                   onChange={handleChange}
                   required={
                     type !== "date" && type !== "select" && type !== "password"
                   }
                   minLength={type === "password" ? 6 : undefined}
                   placeholder={
-                    type === "password"
-                      ? "Nhập mật khẩu mới (tùy chọn)"
-                      : `Nhập ${label}`
+                    type === "password" ? "Nhập mật khẩu mới" : `Nhập ${label}`
                   }
                 />
               )}

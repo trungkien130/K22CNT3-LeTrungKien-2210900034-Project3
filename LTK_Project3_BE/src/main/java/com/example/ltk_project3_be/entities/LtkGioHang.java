@@ -24,9 +24,6 @@ public class LtkGioHang implements Serializable {
     @Column(name = "ma_san_pham", nullable = false)
     private Integer maSanPham;
 
-    @Column(name = "ma_kho", nullable = false)
-    private Integer maKho;
-
     @Column(name = "so_luong", nullable = false)
     private Integer soLuong;
 

@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js"; // Single import
 
-const Banner = ({ isModalOpen }) => {
+const LTK_Banner = ({ isModalOpen }) => {
   useEffect(() => {
     const carouselElement = document.getElementById("carouselExample");
     if (carouselElement && window.bootstrap && window.bootstrap.Carousel) {
@@ -62,4 +62,4 @@ const Banner = ({ isModalOpen }) => {
   );
 };
 
-export default Banner;
+export default LTK_Banner;

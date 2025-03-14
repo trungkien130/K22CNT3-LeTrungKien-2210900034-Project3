@@ -1,18 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import instance from "../../Api/LTK_Api";
-import Header from "./LTK_Header";
-import Footer from "./LTK_Footer";
+import LTK_Header from "./LTK_Header";
+import LTK_Footer from "./LTK_Footer";
+import { useAuth } from "../../Api/LTK_AuthContext";
 
 const LTK_DetailProducts = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
+  const { setModalType } = useAuth();
 
   useEffect(() => {
     async function fetchProductDetail() {
       try {
         const response = await instance.get(`/ltkSanpham/${id}`);
-        console.log("API Response:", response.data); // Log để kiểm tra
+        console.log("API Response:", response.data);
         setProduct(response.data);
       } catch (error) {
         console.error("Lỗi khi lấy chi tiết sản phẩm:", error);
@@ -25,7 +27,7 @@ const LTK_DetailProducts = () => {
 
   return (
     <>
-      <Header />
+      <LTK_Header setModalType={setModalType} />
       <div className="container my-5">
         <div className="row">
           <div className="col-md-6">
@@ -45,7 +47,7 @@ const LTK_DetailProducts = () => {
           </div>
         </div>
       </div>
-      <Footer />
+      <LTK_Footer />
     </>
   );
 };

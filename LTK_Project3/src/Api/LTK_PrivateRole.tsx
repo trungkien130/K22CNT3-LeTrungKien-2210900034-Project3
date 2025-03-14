@@ -1,17 +1,27 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useAuth } from "./LTK_AuthContext";
 
-const PrivateRoute = ({ children }) => {
-  const user = JSON.parse(localStorage.getItem("user")) || null;
+const PrivateRoute = ({ children, requireAdmin = false }) => {
+  const { isAuthenticated, isAdmin, modalType, setModalType } = useAuth();
+  const location = useLocation();
+  const [loading, setLoading] = useState(true);
 
-  const isAuthenticated = user && user.email; // Kiểm tra dựa trên email
-  const isAdmin = user && user.role === "ADMIN"; // Kiểm tra role là "ADMIN"
+  useEffect(() => {
+    if (!isAuthenticated() && modalType !== "login") {
+      setModalType("login");
+    }
+    setLoading(false);
+  }, [isAuthenticated, modalType, setModalType]);
 
-  if (!isAuthenticated) {
+  if (loading) return null; // Chờ xác thực trước khi hiển thị
+
+  if (!isAuthenticated()) {
     return <Navigate to="/" replace />;
   }
 
-  if (!isAdmin) {
-    return <Navigate to="/home" replace />;
+  if (requireAdmin && !isAdmin()) {
+    return <Navigate to="/" replace />;
   }
 
   return children;

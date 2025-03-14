@@ -3,17 +3,15 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Link } from "react-router-dom";
 import "../LTK_App.css";
 import instance from "../Api/LTK_Api";
-import LTK_Register from "../component/HomeComponent/LTK_Register";
-import LTK_Login from "../component/HomeComponent/LTK_Login";
-import Header from "../component/HomeComponent/LTK_Header";
-import Footer from "../component/HomeComponent/LTK_Footer";
-import Banner from "../component/HomeComponent/LTK_Banner";
+import LTK_Header from "../component/HomeComponent/LTK_Header";
+import LTK_Footer from "../component/HomeComponent/LTK_Footer";
 import Categories from "../component/HomeComponent/LTK_Categories";
-import Cart from "../component/HomeComponent/LTK_Cart";
+import { useAuth } from "../Api/LTK_AuthContext";
+import LTK_Banner from "../component/HomeComponent/LTK_Banner";
 
 function LTK_Home() {
   const [dataApi, setDataApi] = useState([]);
-  const [modalType, setModalType] = useState(null); // "login" | "register" | null
+  const { setModalType } = useAuth();
 
   useEffect(() => {
     async function fetchData() {
@@ -30,26 +28,10 @@ function LTK_Home() {
 
   return (
     <div className="d-flex flex-column min-vh-100">
-      <Header setModalType={setModalType} />
-
-      {/* Modal hiển thị khi cần */}
-      {modalType === "register" && (
-        <LTK_Register
-          isOpen={true}
-          onClose={() => setModalType(null)}
-          onSwitchToLogin={() => setModalType("login")}
-        />
-      )}
-      {modalType === "login" && (
-        <LTK_Login
-          isOpen={true}
-          onClose={() => setModalType(null)}
-          onSwitchToRegister={() => setModalType("register")}
-        />
-      )}
-      <Banner />
+      <LTK_Header setModalType={setModalType} />
+      <LTK_Banner />
       <Categories />
-      <Footer />
+      <LTK_Footer />
     </div>
   );
 }

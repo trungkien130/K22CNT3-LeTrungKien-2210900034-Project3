@@ -16,10 +16,9 @@ public class LtkGioHangQueryVO implements Serializable {
 
     private Integer maSanPham;
 
-    private Integer maKho;
-
     private Integer soLuong;
 
     private LocalDateTime ngayThem;
-
+    private int page = 0;
+    private int size = 1000;
 }

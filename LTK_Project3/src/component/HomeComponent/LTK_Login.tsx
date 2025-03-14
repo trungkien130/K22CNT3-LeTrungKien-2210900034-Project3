@@ -32,6 +32,7 @@ function LTK_Login({ onClose, onSwitchToRegister }) {
             token: response.data.token,
           })
         );
+        window.location.reload();
         alert(
           response.data.role === "ADMIN"
             ? "Bạn là Admin!"

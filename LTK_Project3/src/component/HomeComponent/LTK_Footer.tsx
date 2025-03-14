@@ -1,13 +1,13 @@
 import React from "react";
 
-const Footer = () => {
+const LTK_Footer = () => {
   return (
     <footer className="bg-dark text-white text-center py-4 mt-auto">
       <p>Thời trang trẻ em Việt Nam</p>
       <p>Trụ sở chính: Hà Đông, Hà Nội</p>
       <p>
-        <a href="/contact" className="text-white text-decoration-none me-2">
-          Liên Hệ:0913088169
+        <a href="#" className="text-white text-decoration-none me-2">
+          Liên Hệ: 0913088169
         </a>
         |{" "}
         <a href="/policy" className="text-white text-decoration-none ms-2">
@@ -18,4 +18,4 @@ const Footer = () => {
   );
 };
 
-export default Footer;
+export default LTK_Footer;

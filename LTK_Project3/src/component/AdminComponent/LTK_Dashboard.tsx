@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import instance from "../../Api/LTK_Api";
 
-const Dashboard = () => {
+const LTK_Dashboard = () => {
   const [dashboardData, setDashboardData] = useState({
     customers: 0,
     products: 0,
@@ -78,4 +78,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard;
+export default LTK_Dashboard;

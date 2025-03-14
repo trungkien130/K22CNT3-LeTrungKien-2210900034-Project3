@@ -1,0 +1,12 @@
+username: Admin@gmail.com
+password: admin
+site: http://localhost:5173
+
+1. cài các môi trường cần thiết: MAVEN, JAVA, APACHE TOMCAT, NodeJs, Spring Boot,Vite
+2. cài các dependency:
+	Java: - spring jpa, Lombok, MySQL driver, spring web, jsonwebtoken, spring security
+	React + TypeScript:Font Awesome., Tailwind CSS, Bootstrap, React Router, Axios.
+3. chạy server java - eclipse, netbeans, IntelliJ, Vscode,...  	    --port: http://localhost:9090
+4. chạy client web service React + TypeScript - console: /your_dir/.. npm run dev --port: http://localhost:5173
+
+nếu chưa hoặc không đăng nhập không thể sử dụng Admin

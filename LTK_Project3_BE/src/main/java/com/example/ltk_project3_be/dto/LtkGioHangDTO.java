@@ -15,8 +15,6 @@ public class LtkGioHangDTO implements Serializable {
 
     private Integer maSanPham;
 
-    private Integer maKho;
-
     private Integer soLuong;
 
     private LocalDateTime ngayThem;
