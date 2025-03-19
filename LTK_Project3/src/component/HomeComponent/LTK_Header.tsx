@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaSearch, FaUser, FaShoppingCart } from "react-icons/fa";
-import { NavLink, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import logo from "../../Img/logo.png";
 
 const Ltk_Header = ({
@@ -76,8 +76,14 @@ const Ltk_Header = ({
                 {user ? (
                   <>
                     <div className="dropdown-item text-center fw-bold">
-                      Xin chào, {user.email}
+                      <NavLink
+                        style={{ textDecoration: "none", color: "black" }}
+                        to="/userDetail"
+                      >
+                        Xin chào, {user.email}
+                      </NavLink>
                     </div>
+
                     <button
                       className="dropdown-item btn btn-outline-danger w-100 mt-2"
                       onClick={handleLogout}

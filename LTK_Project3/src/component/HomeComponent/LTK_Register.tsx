@@ -43,7 +43,7 @@ function LTK_Register({ onClose, onSwitchToLogin }) {
       onClose();
     } catch (error) {
       console.error("API Fetch Error:", error);
-      setErrorMessage("Lỗi hệ thống. Vui lòng thử lại!");
+      setErrorMessage(error.response.data || "Có lỗi xảy ra");
     }
   }
 

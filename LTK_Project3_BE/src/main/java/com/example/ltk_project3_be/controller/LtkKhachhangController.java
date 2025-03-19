@@ -2,6 +2,7 @@ package com.example.ltk_project3_be.controller;
 
 import com.example.ltk_project3_be.dto.LtkKhachhangDTO;
 import com.example.ltk_project3_be.entities.LtkKhachhang;
+import com.example.ltk_project3_be.repository.LtkKhachhangRepository;
 import com.example.ltk_project3_be.service.LtkKhachhangService;
 import com.example.ltk_project3_be.vo.LtkKhachhangQueryVO;
 import com.example.ltk_project3_be.vo.LtkKhachhangUpdateVO;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Validated
 @RestController
@@ -29,6 +31,9 @@ public class LtkKhachhangController {
     @Autowired
     private LtkKhachhangService ltkKhachhangService;
     private PasswordEncoder passwordEncoder;
+    @Autowired
+    private LtkKhachhangRepository ltkKhachhangRepository;
+
     @PostMapping
     public ResponseEntity<String> save(@Valid @RequestBody LtkKhachhangVO vO) {
         try {
@@ -79,6 +84,11 @@ public class LtkKhachhangController {
     @GetMapping("/{id}")
     public LtkKhachhangDTO getById(@Valid @NotNull @PathVariable("id") Integer id) {
         return ltkKhachhangService.getById(id);
+    }
+    @GetMapping("/ltk_email/{email}")
+    public ResponseEntity<LtkKhachhang> getUserByEmail(@PathVariable String email) {
+        Optional<LtkKhachhang> user = Optional.ofNullable(ltkKhachhangRepository.findByLtkEmail(email));
+        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
     @GetMapping

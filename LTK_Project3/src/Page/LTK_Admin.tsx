@@ -5,6 +5,7 @@ import Navbar from "../component/AdminComponent/LTK_NavAdmin";
 import Dashboard from "../component/AdminComponent/LTK_Dashboard";
 import LTK_KhachHang from "../component/AdminComponent/LTK_KhachHang";
 import LTK_Products from "../component/AdminComponent/LTK_Products";
+import LTK_Cart from "../component/AdminComponent/LTK_Cart";
 
 function LTK_Admin() {
   return (
@@ -23,6 +24,7 @@ function LTK_Admin() {
         <div className="flex-grow-1 p-3 overflow-auto">
           <Routes>
             <Route index element={<Dashboard />} />
+            <Route path="adminCarts" element={<LTK_Cart />} />
             <Route path="adminProducts" element={<LTK_Products />} />
             <Route path="adminKhachHang" element={<LTK_KhachHang />} />
           </Routes>

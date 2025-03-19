@@ -49,7 +49,7 @@ public class LtkGioHangController {
 
     @GetMapping
     public Page<LtkGioHangDTO> query(@RequestParam(value = "page", defaultValue = "0") int page,
-                                     @RequestParam(value = "size", defaultValue = "10") int size) {
+                                     @RequestParam(value = "size", defaultValue = "1000") int size) {
         LtkGioHangQueryVO queryVO = new LtkGioHangQueryVO();
         queryVO.setPage(page);
         queryVO.setSize(size);

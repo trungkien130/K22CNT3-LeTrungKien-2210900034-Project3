@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
-import { FaBox, FaUsers } from "react-icons/fa"; // Thêm icon cho sản phẩm và khách hàng
+import {
+  FaBox,
+  FaUsers,
+  FaShoppingCart,
+  FaTachometerAlt,
+} from "react-icons/fa";
 import instance from "../../Api/LTK_Api";
 
 const Sidebar = () => {
@@ -33,7 +38,7 @@ const Sidebar = () => {
               isActive ? "nav-link text-white active" : "nav-link text-white"
             }
           >
-            Trang chủ
+            <FaTachometerAlt className="me-2" /> Trang chủ
           </NavLink>
         </li>
         <li className="nav-item">
@@ -53,20 +58,19 @@ const Sidebar = () => {
               isActive ? "nav-link text-white active" : "nav-link text-white"
             }
           >
-            <FaUsers className="me-2" />
-            Danh Sách Khách Hàng
+            <FaUsers className="me-2" /> Danh Sách Khách Hàng
           </NavLink>
         </li>
-        {/* <li className="nav-item">
+        <li className="nav-item">
           <NavLink
-            to="/admin/widgets"
+            to="/admin/adminCarts"
             className={({ isActive }) =>
               isActive ? "nav-link text-white active" : "nav-link text-white"
             }
           >
-            📌 Widgets
+            <FaShoppingCart className="me-2" /> Danh Sách Giỏ Hàng
           </NavLink>
-        </li> */}
+        </li>
       </ul>
     </div>
   );

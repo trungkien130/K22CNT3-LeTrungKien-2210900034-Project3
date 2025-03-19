@@ -9,6 +9,7 @@ import PrivateRoute from "./Api/LTK_PrivateRole";
 import LTK_About from "./component/HomeComponent/LTK_About";
 import { AuthProvider } from "./Api/LTK_AuthContext";
 import LTK_Cart from "./component/HomeComponent/LTK_Cart";
+import LTK_UserDetail from "./component/HomeComponent/LTK_UserDetail";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route path="/userDetail" element={<LTK_UserDetail />} />
         <Route path="/about" element={<LTK_About />} />
         <Route path="/cart" element={<LTK_Cart />} />
         <Route path="/products" element={<LTK_Categories />} />

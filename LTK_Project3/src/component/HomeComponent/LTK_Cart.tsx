@@ -70,17 +70,14 @@ const LTK_Cart = () => {
         )
       );
 
-      // Update the backend
       await instance.put(`/ltkGiohang/${maGioHang}`, {
         soLuong: newQuantity,
         maSanPham,
       });
 
-      // Fetch updated cart data to ensure consistency
       await fetchCartData();
     } catch (error) {
       console.error("Lỗi khi cập nhật số lượng:", error);
-      // Revert the state on failure
       await fetchCartData();
       alert("Cập nhật số lượng thất bại. Vui lòng thử lại!");
     }

@@ -6,6 +6,7 @@ const LTK_Dashboard = () => {
   const [dashboardData, setDashboardData] = useState({
     customers: 0,
     products: 0,
+    carts: 0, // Thêm giỏ hàng
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -13,22 +14,20 @@ const LTK_Dashboard = () => {
     const fetchDashboardData = async () => {
       try {
         setIsLoading(true);
-        // Chỉ fetch từ ltkKhachhang và ltkSanpham
-        const [customersRes, productsRes] = await Promise.all([
+
+        const [customersRes, productsRes, cartsRes] = await Promise.all([
           instance.get("/ltkKhachhang"),
           instance.get("/ltkSanpham"),
+          instance.get("/ltkGiohang"), // API lấy giỏ hàng
         ]);
 
-        // Đếm số lượng từ dữ liệu nhận được
-        const customersCount = customersRes.data.content.length || 0;
-        const productsCount = productsRes.data.length || 0;
-        console.log(customersRes);
         setDashboardData({
-          customers: customersCount,
-          products: productsCount,
+          customers: customersRes.data.content.length || 0,
+          products: productsRes.data.length || 0,
+          carts: cartsRes.data.content.length || 0, // Lấy số lượng giỏ hàng
         });
       } catch (error) {
-        console.error("Error fetching dashboard data:", error);
+        console.error("Lỗi khi lấy dữ liệu Dashboard:", error);
       } finally {
         setIsLoading(false);
       }
@@ -48,12 +47,17 @@ const LTK_Dashboard = () => {
       value: dashboardData.products.toLocaleString(),
       link: "/admin/adminProducts",
     },
+    {
+      title: "Tổng số giỏ hàng", // Thêm giỏ hàng vào danh sách
+      value: dashboardData.carts.toLocaleString(),
+      link: "/admin/adminCarts",
+    },
   ];
 
   if (isLoading) {
     return (
       <div className="container mt-3">
-        <h2>Trang chủ </h2>
+        <h2>Trang chủ</h2>
         <div className="text-center">Đang tải dữ liệu...</div>
       </div>
     );

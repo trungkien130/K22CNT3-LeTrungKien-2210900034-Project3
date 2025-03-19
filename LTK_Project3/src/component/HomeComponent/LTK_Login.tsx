@@ -45,7 +45,7 @@ function LTK_Login({ onClose, onSwitchToRegister }) {
       }
     } catch (error) {
       console.error("Lỗi:", error);
-      setErrorMessage("Lỗi hệ thống. Vui lòng thử lại!");
+      setErrorMessage(error.response.data.message || "Có lỗi xảy ra");
     }
   }
 
